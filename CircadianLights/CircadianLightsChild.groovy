@@ -8,9 +8,9 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *                                                                                                     *
-*	Ideas taken from from:                                                                              *
-*  		Hubitat Circadian Daylight                                                                      *
-*		https://raw.githubusercontent.com/adamkempenich/hubitat/master/Apps/CircadianDaylight.groovy      *
+*	Ideas taken from from:                                                                            *
+*  		Hubitat Circadian Daylight                                                                    *
+*		https://raw.githubusercontent.com/adamkempenich/hubitat/master/Apps/CircadianDaylight.groovy  *
 *                                                                                                     *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *
@@ -52,16 +52,15 @@ def initialize() {
 
 def updateLights(){
     def currentTime = now()
-
+    
     def sunrise=new Date().parse("yyyy-MM-dd'T'HH:mm:ss.SSSZ", sunriseOverride).time
     def sunset=new Date().parse("yyyy-MM-dd'T'HH:mm:ss.SSSZ", sunsetOverride).time
     debug ("sunrise time ${sunrise}")
     debug ("Current time ${currentTime}")
     debug ("sunset time ${sunset}")
-
+    
     def dayPart=getPercentageOfDay(sunrise,currentTime,sunset)
-    if (dayPart==-1)
-        return
+
     def colourTemp=getIntermidiateValue(CTStartValue,CTMaxValue,CTEndValue,dayPart)
     def dimLevel=getIntermidiateValue(DimStartValue,DimMaxValue,DimEndValue,dayPart)
     debug ("DayPart is ${dayPart}")
@@ -80,7 +79,7 @@ def updateLights(){
             debug ("${colorTemperatureDevice.label} is set to ${dimLevel}%")
         }
     }
-
+    
     for(dimmableDevice in dimmableDevices) {
         if(dimmableDevice.currentValue("switch") == "on") {
             dimmableDevice.setLevel(dimLevel)
@@ -92,32 +91,42 @@ def updateLights(){
 def getPercentageOfDay(start, now, end){
     if (start <= now && now <= end){
         return (now-start)/(end-start)
+    } else if (now < start ){
+        return -1
     }
-    return -1
+    else{
+        return 2
+    }
 }
 
 def getIntermidiateValue(start,max,end,dayPart)
 {
     def level=0.0
-    if (dayPart<=0.5){
+    if (dayPart < 0){  // before start time, set start value
+        level= start
+    }
+    else if (dayPart<=0.5){
         level=(max-start)*Math.sin(dayPart*Math.PI)+start
     }
-    else{
+    else if (dayPart<=1){
         level=(max-end)*Math.sin(dayPart*Math.PI)+end
+    }
+    else{  // after end time, set end value
+        level=end
     }
     return level.round(0)
 }
 
 /////////////////////// Pages and plumming stuff  ///////////////////////////
 def pageConfig() {
-    dynamicPage(name: "pageConfig", title: "<h2 style='color:#00CED1;font-weight: bold'>Circadian lights</h2>", nextPage: null, install: true, uninstall: true, refreshInterval:0) {
+    dynamicPage(name: "pageConfig", title: "<h2 style='color:#00CED1;font-weight: bold'>Circadian lights</h2>", nextPage: null, install: true, uninstall: true, refreshInterval:0) {	
 	display()
-
+    
 	section("Instructions:", hideable: true, hidden: true) {
 		paragraph "<b>Notes:</b>"
 		paragraph "- Select master and slave dimmers you want to keep in sync<br>- The slave(s) will follow the master."
 	}
-
+		
 	section(getFormat("header-black", " Select lights")) {
 		input "colorTemperatureDevices", "capability.colorTemperature", title: "Which Color Temperature capable devices?", multiple:true, required: false
 		//input "colorDevices", "capability.colorControl", title: "Which Color-Changing devices?", multiple:true, required: false
@@ -141,7 +150,7 @@ def pageConfig() {
 	section() {
 		input(name: "logEnable", type: "bool", defaultValue: "true", title: "Enable Debug Logging", description: "Enable extra logging for debugging.")
    	}
-
+	
 	display2()
 	}
 }
