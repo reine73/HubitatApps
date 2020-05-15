@@ -8,9 +8,9 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *                                                                                                     *
-*	Ideas taken from from:                                                                              *
-*  		Hubitat Alternative Circadian Daylight                                                          *
-*		https://raw.githubusercontent.com/adamkempenich/hubitat/master/Apps/CircadianDaylight.groovy      *
+*	Ideas taken from from:                                                                            *
+*  		Circadian Daylight                                                                            *
+*		https://raw.githubusercontent.com/adamkempenich/hubitat/master/Apps/CircadianDaylight.groovy  *
 *                                                                                                     *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *
@@ -33,10 +33,10 @@ definition(
 
 preferences {
      page name: "mainPage", title: "", install: true, uninstall: true
-}
+} 
 
 def installed() {
-
+    
     log.debug "Installed with settings:"
     initialize()
 }
@@ -90,8 +90,8 @@ def mainPage() {
 	}
 }
 
-def installCheck(){
-	state.appInstalled = app.getInstallationState()
+def installCheck(){         
+	state.appInstalled = app.getInstallationState() 
 	if(state.appInstalled != 'COMPLETE'){
 		section{paragraph "Please hit 'Done' to install '${app.label}' parent app "}
   	}
@@ -111,5 +111,5 @@ def display(){
 	section() {
 		paragraph getFormat("line")
 		paragraph "<div style='text-align:center'>Circadian Lights - App Version: 0.1</div>"
-	}
-}
+	}       
+}  

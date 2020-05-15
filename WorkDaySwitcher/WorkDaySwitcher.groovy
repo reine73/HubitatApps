@@ -14,7 +14,7 @@ preferences{
 }
 
 def appSetup(){ 
-    dynamicPage(name: "appSetup", title: "Luminance tracker settings", nextPage: null, install: true, uninstall: true, refreshInterval: 0) {
+    dynamicPage(name: "appSetup", title: "Workday switcher settings", nextPage: null, install: true, uninstall: true, refreshInterval: 0) {
         
         section("Settings"){
             input "bankdaySwitch", "capability.switch", title: "Select switch for bankday", multiple: false, required: true
